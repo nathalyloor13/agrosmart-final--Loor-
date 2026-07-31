@@ -125,8 +125,8 @@ Hibernate necesita instanciar el objeto y asignar valores a sus atributos despu�
 ```
 **3.2** Escribe el código exacto de **tus dos** copias defensivas e indica en qué línea
 está cada una.
-
-```java
+```
+```
 Copia defensiva en el constructor
 
 public final class Producto {
