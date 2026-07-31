@@ -28,23 +28,28 @@
 
 **1.1** ¿Qué archivo activa el perfil `prod` y qué línea exacta lo hace?
 
->
+> EL archivo que activa es: src/main/resources/application.properties
+> La línea exacta es: spring.profiles.active=prod
+> A lo que ejecuto la aplicación, Spring Boot carga automáticamente el archivo complementario application-prod.properties con toda la configuración de producción.
 
 **1.2** Pega la línea del log de arranque donde se ve tu puerto y el perfil activo.
 
 ```
-
+Perfil Activo
+2026-07-30T20:18:23.091-05:00  INFO 10272 --- [agrosmart] [           main] e.e.espe.agrosmart.AgrosmartApplication  : The following 1 profile is active: "prod"
+Puerto de Arranque
+2026-07-31T14:19:33.704-05:00  INFO 20884 --- [agrosmart] [           main] o.s.boot.reactor.netty.NettyWebServer    : Netty started on port 8177 (http)
 ```
 
 **1.3** ¿Qué habría pasado si dejabas `ddl-auto=create-drop` en lugar de `update`?
 Responde pensando en tus datos sembrados.
 
->
+>Con create-drop el "hibernate" crea las tablas al iniciar la aplicación, pero las elimina totalmente al apagarla. En consecuencia cualquier registro que haya guardado se pierde totalmente cada vez que detenga el servicio. En cambio "update" solo crea tablas nuevas o agrega columnas si cambio las entidades; nunca se borra los datos existentes, la mejor opcion para desarrollo y pruebas
 
 **1.4** ¿Levantaste PostgreSQL con `compose.yaml` (Opción A) o con una instalación local
 (Opción B)? ¿Qué ventaja tiene la que elegiste?
 
->
+>Yo elegí la primera opcion (A), porque no necesito instalar ni configurar PostgreSQL manualmente en Windows, todo se gestiona dentro de un contenedor. El entorno es idéntico en cualquier equipo, es decir, no hay diferencias de versión ni configuración. No interfiere con instalaciones locales de PostgreSQL que ya tenga (como me pasó al inicio con el puerto 5432 que lo tenia ocupado). Al borrar o recrear el contenedor, vuelve a un estado limpio rápidamente sin afectar mi sistema.
 
 ---
 
