@@ -191,29 +191,51 @@ El prod original nunca cambia, la función crea y entrega una versión nueva, cu
 **4.1** Pega tu método `obtenerProductosComercializables()` completo.
 
 ```java
-
+public Flux<Producto> obtenerProductosComercializables() {
+    return Flux.defer(() -> Flux.fromIterable(repository.findAll()))
+            .subscribeOn(Schedulers.boundedElastic())
+            .map(ProductoMapper::aDominio)
+            .map(ProductoFilters.NOMBRE_MAYUSCULAS)
+            .filter(ProductoFilters.ES_VALIDO)
+            .doOnNext(ProductoFilters.IMPRIMIR_RESUMEN)
+            .switchIfEmpty(Flux.defer(() -> {
+                log.warn(" No se encontraron productos: generando registro por defecto");
+                return Flux.just(new Producto(
+                        0L,
+                        "SIN PRODUCTOS DISPONIBLES",
+                        "GENERAL",
+                        BigDecimal.ZERO,
+                        java.util.Collections.emptyList()
+                ));
+            }))
+            .doOnComplete(() -> log.info(" Procesamiento de productos finalizado"));
+}
 ```
 
 **4.2** ¿Qué pasa **exactamente** si eliminas
 `.subscribeOn(Schedulers.boundedElastic())` de ese método? Si lo probaste, indica qué
 hilo aparecía en el log antes y después.
 
->
+>Si lo quito, la consulta a la base de datos se ejecuta sobre los hilos del servidor web (reactor-http-nio-*), que están diseñados solo para atender peticiones rápidas. Al ser una operación bloqueante, esos hilos se quedan esperando a PostgreSQL y no llegamos a recibir nuevas solicitudes, es decir, el sistema pierde rendimiento y escalabilidad
 
 **4.3** ¿Por qué `Mono.fromCallable(...)` y no `Mono.just(repository.findAll())`?
 (pista: cuándo se ejecuta cada uno)
 
->
+>Porque si llamo repository.findAll() fuera del defer, la consulta se ejecuta inmediatamente al crear el flujo, incluso si nadie lo consume después.
+En cambio con " Flux.defer(...)" la consulta solo corre cuando alguien se suscribe realmente. Es "perezoso" y eficiente, no golpea la base de datos innecesariamente.
 
 **4.4** En **tu** código, ¿dónde usaste `defaultIfEmpty` y dónde `switchIfEmpty`, y por
 qué no son intercambiables en esos dos lugares?
 
+>Usé switchIfEmpty al final del flujo:, si no hay productos válidos, devuelvo otro Flux que además escribe un aviso en el log y crea un objeto nuevo.
 >
+>No puedo usar defaultIfEmpty aquí porque ese operador solo acepta un valor fijo inmediato, no permite ejecutar lógica extra ni devolver otro flujo reactivo. No son intercambiables, es decir, uno es para valores simples, el otro para flujos completos.
 
 **4.5** ¿Por qué `doOnNext` no sirve para transformar el elemento, si aparentemente
 "recibe" el producto?
 
->
+>Porque doOnNext es solo una acción secundaria: recibe el elemento para leerlo o mostrarlo, pero no devuelve nada — su tipo es Consumer, no Function. Cualquier cambio que intentes hacer ahí no pasa al siguiente paso del flujo. Para transformar siempre se usa map, que sí entrega el elemento modificado.
+
 
 ---
 
