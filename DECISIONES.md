@@ -64,7 +64,7 @@ Lo definí en la anotación @Table(name = "tbl_productos_base_77") de ProductoEn
 señala dónde se ve la restricción `unique` y el `length` de 120.
 
 ```
-<img width="1132" height="248" alt="image" src="https://github.com/user-attachments/assets/b054ad6b-885b-47d4-a14c-94e897daad14" />
+
 + docker exec -i agrosmart-postgres psql -U agrosmart -d agrosmart_db -c "\d tbl_productos_base_77"
 
                                   Table "public.tbl_productos_base_77"
