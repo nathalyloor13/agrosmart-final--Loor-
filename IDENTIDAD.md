@@ -4,11 +4,11 @@
 > sincrónica** del examen. Toma menos de 5 minutos y es lo único con horario fijo:
 > después trabajas a tu ritmo hasta el plazo del día siguiente.
 
-- **Nombre completo:**
-- **Cédula:**
-- **NRC:**
-- **Nonce del examen:**            <!-- código publicado por el docente en la sesión -->
-- **Fecha y hora de inicio:**      <!-- formato: 2026-XX-XX HH:MM -->
+- **Nombre completo:**  Jennifer Nathaly Loor Mecias
+- **Cédula:**        1728620277
+- **NRC:**  30405
+- **Nonce del examen:**     AGS-XXXX-2026       
+- **Fecha y hora de inicio:**      <!-- formato: 2026-30-07 19:00 -->
 
 ---
 
@@ -64,3 +64,4 @@ decisión de diseño que contiene, y que el historial de commits refleja fielmen
 proceso de desarrollo que realicé.
 
 **Firma (nombre completo):**
+Jennifer Nathaly Loor Mecias
