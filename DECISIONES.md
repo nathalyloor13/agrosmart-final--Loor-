@@ -122,9 +122,11 @@ Si no fuera idempotente en el segundo arranque intentaría volver a insertar los
 ¿Qué impide hacer inmutable la entidad directamente?
 
 Hibernate necesita instanciar el objeto y asignar valores a sus atributos después de crearlo. Si declaramos la entidad con atributos final, sin setters ni constructor vacío, Hibernate no puede modificar sus campos y falla al leer/escribir datos.
-```
+
+
 **3.2** Escribe el código exacto de **tus dos** copias defensivas e indica en qué línea
 está cada una.
+
 ```
 ```
 Copia defensiva en el constructor
@@ -168,7 +170,7 @@ La lista interna del producto se altera sin pasar por ningún control de negocio
 
 **3.4** ¿Cómo implementaste `A_MAYUSCULAS` para no mutar el `Producto` recibido?
 
-```java
+```
 Devuelvo una nueva instancia de Producto con el nombre transformado, manteniendo intacto el objeto que recibí:
 
     public static final Function<Producto, Producto> NOMBRE_MAYUSCULAS = producto ->
