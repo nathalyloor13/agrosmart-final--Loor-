@@ -8,7 +8,7 @@
 - **Cédula:**        1728620277
 - **NRC:**  30405
 - **Nonce del examen:**     AGS-XXXX-2026       
-- **Fecha y hora de inicio:**      <!-- formato: 2026-30-07 19:00 -->
+- **Fecha y hora de inicio:**      2026-30-07 19:00 
 
 ---
 
