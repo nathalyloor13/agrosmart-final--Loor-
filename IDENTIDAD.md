@@ -23,7 +23,7 @@ se busca en una tabla.
 | 1 | Nombre de la tabla | `tbl_productos_base_` + `NN` | tbl_productos_base_77|
 | 2 | Puerto | `81` + `77` | 8177|
 | 3 | Categoría | según el **los ultimos digitos** (tabla de abajo) |flores |
-| — | Audiencia para el prompt de IA | según la categoría | floristerías premium |
+| — | Audiencia para el prompt de IA | según la categoría | Rosas de exportación - floristerías premium |
 
 **Tabla de categorías:**
 
