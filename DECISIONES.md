@@ -89,16 +89,17 @@ tipo que generó Hibernate en PostgreSQL.
 
 > Usé BigDecimal, porque es el tipo de dato diseñado para representar valores numéricos con precisión decimal exacta, a diferencia de double que es de punto flotante aproximado y genera errores de redondeo en operaciones monetarias.
 > @Column(name = "precio_usd", precision = 10, scale = 2)
-private BigDecimal precioUsd;
+> private BigDecimal precioUsd;
 > Hibernate lo tradujo automáticamente en PostgreSQL al tipo numerico (10,2), que también garantiza exactitud con 10 dígitos totales y 2 decimales para moneda. Ambos tipos son equivalentes y se complementan para evitar errores en cálculos de dinero.
 
 **2.4** ¿Cómo hiciste idempotente tu siembra y qué pasaría en el segundo arranque si no
 lo fuera? (piensa en la restricción `unique` de `nombre_producto`)
 
 >La siembra es idempotente porque solo inserta datos si la tabla está vacía, validándolo con:
+>
 >if (repo.count() == 0) {
-    repo.saveAll(listaProductos);
-}
+>repo.saveAll(listaProductos);
+>}
 >Así, al arrancar la aplicación por primera vez carga los registros, y en arranques posteriores omite la inserción sin afectar la base de datos.
 >Si no fuera idempotente en el segundo arranque intentaría volver a insertar los mismos nombres de producto. Al existir la restricción UNIQUE sobre nombre_producto, PostgreSQL rechazaría la operación con un error de clave duplicada, impidiendo que la aplicación inicie correctamente.
 
