@@ -17,10 +17,10 @@
 
 ## Datos
 
-- **Nombre:**
-- **Cédula:**
-- **NN (dos últimos dígitos):**
-- **Categoría asignada (según el último dígito):**
+- **Nombre:**  Jennifer Loor
+- **Cédula:**  1728620277
+- **NN (dos últimos dígitos):** 77
+- **Categoría asignada (según el último dígito):** Flores
 
 ---
 
