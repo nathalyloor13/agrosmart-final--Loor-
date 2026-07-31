@@ -14,15 +14,15 @@
 
 ## Mi semilla personal
 
-Sean `NN` los **dos últimos dígitos** de mi cédula. No hay cálculos: se copian dígitos y
+Sean `77` los **dos últimos dígitos** de mi cédula. No hay cálculos: se copian dígitos y
 se busca en una tabla.
 
 | # | Parámetro | Cómo se obtiene | Mi valor |
 |:---:|-----------|-----------------|----------|
-| — | `NN` | los 2 últimos dígitos de mi cédula | |
-| 1 | Nombre de la tabla | `tbl_productos_base_` + `NN` | |
-| 2 | Puerto | `81` + `NN` | |
-| 3 | Categoría | según el **último dígito** (tabla de abajo) | |
+| — | `77` | los 2 últimos dígitos de mi cédula | |
+| 1 | Nombre de la tabla | `tbl_productos_base_` + `77` | |
+| 2 | Puerto | `81` + `77` | |
+| 3 | Categoría | según el **flores** (tabla de abajo) | |
 | — | Audiencia para el prompt de IA | según la categoría | |
 
 **Tabla de categorías:**
