@@ -116,25 +116,71 @@ Si no fuera idempotente en el segundo arranque intentaría volver a insertar los
 **3.1** ¿Por qué tienes **dos** clases (`ProductoEntity` y `Producto`) en lugar de una?
 ¿Qué te impide hacer inmutable directamente la entidad de Hibernate?
 
+>Por separación de responsabilidades, ProductoEntity pertenece a la capa de persistencia, está diseñada para que Hibernate lea o escriba en la base de datos, requiere métodos de modificación (setters) y un constructor vacío obligatorio para funcionar. Producto porque, pertenece a la capa de dominio, representa la regla de negocio y es 100% inmutable, así se protege la lógica de cambios accidentales o maliciosos.
 >
+>
+¿Qué impide hacer inmutable la entidad directamente?
 
+Hibernate necesita instanciar el objeto y asignar valores a sus atributos después de crearlo. Si declaramos la entidad con atributos final, sin setters ni constructor vacío, Hibernate no puede modificar sus campos y falla al leer/escribir datos.
+```
 **3.2** Escribe el código exacto de **tus dos** copias defensivas e indica en qué línea
 está cada una.
 
 ```java
+Copia defensiva en el constructor
+
+public final class Producto {
+    private final Long id;
+    private final String nombre;
+    private final String categoria;
+    private final BigDecimal precioUsd;
+    private final List<String> correosNotificacion;
+
+    // Constructor con validación y copia defensiva
+    public Producto(Long id, String nombre, String categoria,
+                    BigDecimal precioUsd, List<String> correosNotificacion) {
+        this.id = id;
+        this.nombre = nombre;
+        this.categoria = categoria;
+        this.precioUsd = precioUsd;
+        // No guardo la lista original: creo una copia nueva
+        this.correosNotificacion = new ArrayList<>(correosNotificacion);
+    }
 
 ```
+Copia defensiva en el getter
 
+ public Long getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getCategoria() { return categoria; }
+    public BigDecimal getPrecioUsd() { return precioUsd; }
+
+    public List<String> getCorreosNotificacion() {
+        return Collections.unmodifiableList(new ArrayList<>(correosNotificacion));
+    }
+```
 **3.3** ¿Por qué la copia defensiva **solo en el getter** no sería suficiente? Describe
 el ataque concreto que quedaría abierto sobre **tu** clase.
 
->
+>Porque la protección solo al devolver el valor no cubre lo que pasa antes, si alguien pasa una lista externa al constructor y luego la modifica desde afuera, el estado interno de Producto cambiaría sin que el objeto lo sepa.
+
+La lista interna del producto se altera sin pasar por ningún control de negocio, rompiendo la inmutabilidad. La copia en el constructor corta esa dependencia.
 
 **3.4** ¿Cómo implementaste `A_MAYUSCULAS` para no mutar el `Producto` recibido?
 
 ```java
+Devuelvo una nueva instancia de Producto con el nombre transformado, manteniendo intacto el objeto que recibí:
 
+    public static final Function<Producto, Producto> NOMBRE_MAYUSCULAS = producto ->
+            new Producto(
+                    producto.getId(),
+                    producto.getNombre().toUpperCase(),
+                    producto.getCategoria(),
+                    producto.getPrecioUsd(),
+                    producto.getCorreosNotificacion()
+            );
 ```
+El prod original nunca cambia, la función crea y entrega una versión nueva, cumpliendo la regla de inmutabilidad.
 
 ---
 
