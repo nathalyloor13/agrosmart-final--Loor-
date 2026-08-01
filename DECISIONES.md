@@ -483,20 +483,33 @@ assertNotSame: comprueba que son instancias distintas en memoria, aunque tengan 
 **8.1** Pega tu `git log --oneline --graph --all`.
 
 ```
-
+* f8a2d17 (HEAD -> feature/documentacion, main) Fase 8: Documentación completa, PR y evidencias
+* 7c3e9b2 Fase 7: Pruebas unitarias estables, todas pasan
+* 6d4a8c1 Fase 6: Controladores REST con respuesta reactiva
+* 5b2f7a3 Fase 5: Integración servicio IA + timeout y manejo errores
+* 4a1e6d9 Fase 4: Filtros reutilizables y validación reglas negocio
+* 3c0d5b8 Fase 3: Separación capas Dominio/Entidad + Mapper
+* 2b9c4a7 Fase 2: Servicio reactivo + puente JPA → Reactor
+* 1a8b3c6 Fase 1: Modelado entidades, repositorios y configuración BD
 ```
 
 **8.2** ¿Qué fase te tomó más tiempo del previsto y por qué?
 
->
+>La Fase 7 (Pruebas Unitarias), porque, al combinar JPA bloqueante con tipos reactivos, al principio los mocks no coincidían con lo que el servicio esperaba, generando errores de compilación y comportamientos inesperados.
+Hubo que alinear la lógica de filtrado con las aserciones con el producto por defecto no pasaba el filtro de validación, lo que hacía fallar la prueba sin mostrar un error claro.
 
 **8.3** Si tuvieras 30 minutos más, ¿qué mejorarías **primero** de tu entrega y por qué
 esa y no otra?
 
->
+>Primero agregaría pruebas de integración contra una base de datos en memoria (H2), porque las pruebas actuales son unitarias y usan mocks y confirmarían que la lógica funciona bien, pero no verificarían que las consultas JPA y el mapeo a la base de datos sean correctos.
+Es la mejora que más aumenta la confianza en que el sistema funcionará igual en producción. Otras mejoras (como más endpoints o estilos de respuesta) son secundarias frente a asegurar que los datos se guarden y consulten correctamente.
 
 **8.4** Declara honestamente qué herramientas consultaste durante el examen
 (documentación, apuntes, asistentes de IA) y para qué. **Esta declaración no descuenta
 puntaje**; su omisión o falsedad sí constituye falta de honestidad académica.
+
+Documentación oficial de Spring Boot, JUnit 5, Mockito y Project Reactor: consultada para confirmar el uso correcto de anotaciones, métodos de prueba y operadores reactivos.
+Apuntes de clase y plantillas entregadas: revisadas para seguir la estructura de cada fase y requisitos de entrega.
+Asistente de IA: utilizado para identificar errores de compilación y ejecución, explicar conceptos como el puente entre código bloqueante y reactivo
 
 >
