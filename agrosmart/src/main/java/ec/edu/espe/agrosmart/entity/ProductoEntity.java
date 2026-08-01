@@ -1,12 +1,10 @@
 package ec.edu.espe.agrosmart.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tbl_productos_base_77") // TU TABLA EXACTA
-@Data
+@Table(name = "tbl_productos_base_77")
 public class ProductoEntity {
 
     @Id
@@ -28,4 +26,23 @@ public class ProductoEntity {
 
     @Column(name = "correos_notificacion", length = 500)
     private String correosNotificacion = "";
+
+    // Getters y Setters manuales
+    public Long getIdProducto() { return idProducto; }
+    public void setIdProducto(Long idProducto) { this.idProducto = idProducto; }
+
+    public String getNombreProducto() { return nombreProducto; }
+    public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
+
+    public BigDecimal getPrecioUsd() { return precioUsd; }
+    public void setPrecioUsd(BigDecimal precioUsd) { this.precioUsd = precioUsd; }
+
+    public Integer getStockKg() { return stockKg; }
+    public void setStockKg(Integer stockKg) { this.stockKg = stockKg; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getCorreosNotificacion() { return correosNotificacion; }
+    public void setCorreosNotificacion(String correosNotificacion) { this.correosNotificacion = correosNotificacion; }
 }
