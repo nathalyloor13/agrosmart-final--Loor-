@@ -244,29 +244,55 @@ qué no son intercambiables en esos dos lugares?
 **5.1** Pega tu interfaz `AgroSmartAIService` completa.
 
 ```java
+package ec.edu.espe.agrosmart.service;
 
+import dev.langchain4j.service.spring.AiService;
+import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+@AiService
+public interface AgroSmartAIService {
+
+    @UserMessage("""
+            Redacta una frase publicitaria de máximo 100 caracteres para vender \
+            {{producto}} dirigido a {{audiencia}}.""")
+    String generarPublicidad(@V("producto") String producto,
+                             @V("audiencia") String audiencia);
+}
 ```
 
 **5.2** ¿Qué hace `@V("producto")` y qué pasaría si lo quitaras dejando solo el
 parámetro?
 
->
+> @V("nombre") asocia el valor del parámetro Java con la variable {{nombre}} que está escrita dentro del @UserMessage. Es el mecanismo que usa LangChain4j para reemplazar dinámicamente los textos en el prompt antes de enviarlos al modelo.
+Si lo quitara, el prompt no sabría qué valor poner en {{producto}}, se quedaría con el texto literal o lanzaría un error, ya que no hay correspondencia entre el argumento que envías y el espacio reservado en el mensaje. El orden de los parámetros no basta; se requiere el mapeo explícito por nombre.
 
 **5.3** ¿En qué archivo y con qué líneas configuraste el modelo? ¿Por qué **no** hizo
 falta declarar un `@Bean`?
 
->
+> La configuración está en src/main/resources/application-prod.properties, con estas líneas:
+> langchain4j.open-ai.chat-model.api-key=demo
+langchain4j.open-ai.chat-model.model-name=gpt-4o-mini
+langchain4j.open-ai.chat-model.timeout=30s
+> No hace falta declarar un @Bean, porque los starters de LangChain4j (langchain4j-open-ai-spring-boot-starter) traen autoconfiguración y al detectar esas propiedades y la anotación @AiService, Spring va crear automáticamente la instancia del modelo y la implementación de la interfaz sin que tenga que escribir código de configuración manual.
 
 **5.4** ¿Por qué la llamada a la IA también necesita `boundedElastic`, si no es una
 consulta a base de datos?
 
->
+> Aunque no sea una consulta a PostgreSQL, llamar al modelo de lenguaje implica una solicitud HTTP a un servicio externo, esa operación es bloqueante, es decir, el hilo se queda esperando la respuesta y no puede hacer nada más mientras llega.
+El servidor WebFlux corre sobre el event loop de Netty, que es un número muy reducido de hilos, es decir, si bloqueas uno con la llamada a la IA, todas las demás peticiones se estancan. boundedElastic mueve esa espera a un grupo de hilos diseñado para tareas bloqueantes, dejando el event loop libre para seguir atendiendo solicitudes.
 
 **5.5** Si tu proveedor devolvió un error durante el examen, pega el mensaje real y la
 respuesta que produjo tu `onErrorResume`.
 
 ```
+Mensaje real de error
 
+> dev.langchain4j.model.openai.OpenAiHttpException: 429 Too Many Requests
+
+Mensaje real que devuelve
+
+dev.langchain4j.model.openai.OpenAiHttpException: 429 Too Many Requests
 ```
 
 ---
