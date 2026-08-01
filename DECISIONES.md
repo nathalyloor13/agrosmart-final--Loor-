@@ -384,28 +384,97 @@ Además, al usar tipos bloqueantes en la aplicación configurada como WebFlux, s
 **7.1** Pega la salida real de tus pruebas (`./mvnw test` o `./gradlew test`).
 
 ```
-
+PS D:\Descarga\agrosmart\agrosmart> ./mvnw clean test
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< ec.edu.espe:agrosmart >------------------------
+[INFO] Building AgroSmart 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ agrosmart ---
+[INFO] Deleting D:\Descarga\agrosmart\agrosmart\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ agrosmart ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ agrosmart ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 10 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ agrosmart ---
+[INFO] skip non existing resourceDirectory D:\Descarga\agrosmart\agrosmart\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ agrosmart ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ agrosmart ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running ec.edu.espe.agrosmart.AgrosmartApplicationTests
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.018 s -- in ec.edu.espe.agrosmart.AgrosmartApplicationTests
+[INFO] Running ec.edu.espe.agrosmart.domain.ProductoFiltersTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.100 s -- in ec.edu.espe.agrosmart.domain.ProductoFiltersTest
+[INFO] Running ec.edu.espe.agrosmart.domain.ProductoTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in ec.edu.espe.agrosmart.domain.ProductoTest
+[INFO] Running ec.edu.espe.agrosmart.service.ProductoServiceTest
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\jenni\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+ [1] ROSA ROJA | $2,50 | Flores
+ [2] GIRASOL | $1,80 | Flores
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.768 s -- in ec.edu.espe.agrosmart.service.ProductoServiceTest
+[INFO] Running ec.edu.espe.agrosmart.service.PublicidadServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.050 s -- in ec.edu.espe.agrosmart.service.PublicidadServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 1
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.245 s
+[INFO] Finished at: 2026-07-31T21:20:11-05:00
+[INFO] ------------------------------------------------------------------------
 ```
 
 **7.2** ¿Cuántos productos espera tu `expectNextCount(...)` y por qué ese número
 concreto? Relaciónalo con tu semilla.
 
->
+> 2 productos validos,porque mi semilla de prueba tiene 4 productos:
+> Rosa Roja: precio 2.50 > 0 + correo no vacío → válido
+> Girasol: precio 1.80 > 0 + correo no vacío → válido
+> Margarita: precio 0 -> descartado por el filtro
+> Clavel: correo vacío -> descartado por el filtro
+La regla de negocio (ProductoFilters.ES_VALIDO) exige precio mayor a 0 Y correo no vacío. Solo los dos primeros cumplen ambas condiciones, por eso se usa expectNextCount(2).
 
 **7.3** ¿Por qué mockeaste `ProductoRepository` en lugar de dejar que la prueba consulte
 PostgreSQL?
 
->
+>Porque es una prueba unitaria, no de integración. El objetivo es probar solo la lógica de ProductoService, sin depender de bases de datos externas, conexiones o datos reales.
+Al usar Mockito, controlamos exactamente qué devuelve el repositorio sin importar si PostgreSQL está encendido o tiene datos.
+Las pruebas son más rápidas, estables y no fallan por problemas de configuración de la base de datos.
+
 
 **7.4** ¿Qué demuestra `assertNotSame` que `assertEquals` **no** demuestra en tu prueba
 de copia defensiva?
 
->
+>assertEquals: solo verifica que el contenido de los objetos sea idéntico (mismos valores en los atributos).
+assertNotSame: comprueba que son instancias distintas en memoria, aunque tengan los mismos datos.
 
 **7.5** ¿Por qué una prueba de un `Flux` que no llama a `verifyComplete()` (o a
 `verify()`) no está probando nada?
 
->
+>Porque Flux es perezoso, es decir, no empieza a emitir elementos hasta que alguien se suscribe. StepVerifier solo ejecuta la secuencia si le indicas que espere a que termine. Sin verifyComplete() o verify(), la prueba no espera nada: marca que pasó aunque el flujo nunca se haya ejecutado ni emitido ningún elemento. Básicamente,la prueba no verifica que el comportamiento sea correcto, solo que no explotó antes de empezar
 
 ---
 
