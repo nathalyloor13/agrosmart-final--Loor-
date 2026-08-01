@@ -57,7 +57,7 @@ public class SembrarDatos implements CommandLineRunner {
             p5.setCorreosNotificacion("");
 
             repo.saveAll(List.of(p1,p2,p3,p4,p5));
-            System.out.println("✅ Siembra lista: 3 válidos + 2 inválidos");
+            System.out.println(" Siembra lista: 3 válidos + 2 inválidos");
         }
     }
 }

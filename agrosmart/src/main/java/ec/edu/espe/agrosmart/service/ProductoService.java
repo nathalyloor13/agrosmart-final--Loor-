@@ -2,7 +2,7 @@ package ec.edu.espe.agrosmart.service;
 
 import ec.edu.espe.agrosmart.domain.Producto;
 import ec.edu.espe.agrosmart.domain.ProductoFilters;
-import ec.edu.espe.agrosmart.entity.ProductoEntity;
+import ec.edu.espe.agrosmart.exception.ProductoNoEncontradoException;
 import ec.edu.espe.agrosmart.mapper.ProductoMapper;
 import ec.edu.espe.agrosmart.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.math.BigDecimal;
+import java.time.Duration;
 
 @Slf4j
 @Service
@@ -19,29 +20,44 @@ import java.math.BigDecimal;
 public class ProductoService {
 
     private final ProductoRepository repository;
+    // Agregado: inyección del servicio de IA
+    private final AgroSmartAIService aiService;
 
-    public Flux<Producto> listarProductosProcesados() {
-        return Flux.defer(() -> Flux.fromIterable(repository.findAll()))
-                .subscribeOn(Schedulers.boundedElastic()) // Hilo exclusivo BD
-                .map(ProductoMapper::aDominio)              // Entity -> Dominio
-                .map(ProductoFilters.NOMBRE_MAYUSCULAS)     // Transforma sin mutar
-                .filter(ProductoFilters.ES_VALIDO)          // Solo válidos
-                .doOnNext(ProductoFilters.IMPRIMIR_RESUMEN) // Traza por consola
-                .switchIfEmpty(Flux.defer(() -> {            // Valor por defecto
-                    log.warn(" No se encontraron productos: generando registro por defecto");
-                    Producto defecto = new Producto(
-                            0L,
-                            "SIN PRODUCTOS DISPONIBLES",
-                            "GENERAL",
-                            BigDecimal.ZERO,
-                            java.util.Collections.emptyList()
-                    );
-                    return Flux.just(defecto);
-                }))
-                .doOnComplete(() -> log.info("Procesamiento de productos finalizado"));
+    public Flux<Producto> obtenerProductosComercializables() {
+        return Mono.fromCallable(repository::findAll)
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(Flux::fromIterable)
+                .map(ProductoMapper::aDominio)
+                .map(ProductoFilters.NOMBRE_MAYUSCULAS)
+                .filter(ProductoFilters.ES_VALIDO)
+                .doOnNext(ProductoFilters.IMPRIMIR_RESUMEN)
+                .defaultIfEmpty(new Producto(
+                        0L,
+                        "SIN PRODUCTOS DISPONIBLES",
+                        "GENERAL",
+                        BigDecimal.ZERO,
+                        java.util.Collections.emptyList()
+                ));
+    }
+
+    public Mono<Producto> buscarPorId(Long id) {
+        return Mono.fromCallable(() -> repository.findById(id))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(Mono::justOrEmpty)
+                .map(ProductoMapper::aDominio)
+                .switchIfEmpty(Mono.error(new ProductoNoEncontradoException(id)));
     }
 
     public Mono<Long> contarProductosValidos() {
-        return listarProductosProcesados().count();
+        return obtenerProductosComercializables().count();
+    }
+
+    // Agregado: método de IA con aislamiento y manejo de fallos
+    public Mono<String> generarPublicidad(String producto, String audiencia) {
+        return Mono.fromCallable(() -> aiService.generarPublicidad(producto, audiencia))
+                .subscribeOn(Schedulers.boundedElastic())
+                .timeout(Duration.ofSeconds(30))
+                .onErrorResume(e -> Mono.just(
+                        "Publicidad no disponible en este momento (" + e.getClass().getSimpleName() + ")"));
     }
 }
