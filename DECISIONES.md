@@ -302,17 +302,80 @@ dev.langchain4j.model.openai.OpenAiHttpException: 429 Too Many Requests
 **6.1** Pega la salida real de tus cuatro `curl`.
 
 ```
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+                                                                                                                                                                                    
+Instale la versión más reciente de PowerShell para obtener nuevas características y mejoras. https://aka.ms/PSWindows                                                               
+                                                                                                                                                                                    
+PS D:\Descarga\agrosmart> cd agrosmart                                                                                                                                              
+PS D:\Descarga\agrosmart\agrosmart>  curl http://localhost:8177/api/productos
 
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : [{"id":1,"nombre":"ROSA ROJA","categoria":"Flores","precioUsd":2.50,"correosNotificacion":["ventas@flores.ec"]},{"id":2,"nombre":"GIRASOL","categoria":"Flores"
+                    ,"precioUsd":1.80,"correosNotificacion":[...
+RawContent        : HTTP/1.1 200 OK
+                    transfer-encoding: chunked
+                    Content-Type: application/json
+                    
+                    [{"id":1,"nombre":"ROSA ROJA","categoria":"Flores","precioUsd":2.50,"correosNotificacion":["ventas@flores.ec"]},{"id":2,"...
+Forms             : {}
+Headers           : {[transfer-encoding, chunked], [Content-Type, application/json]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 222
+
+
+
+PS D:\Descarga\agrosmart\agrosmart>  curl http://localhost:8177/api/productos/1
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"id":1,"nombre":"Rosa Roja","categoria":"Flores","precioUsd":2.50,"correosNotificacion":["ventas@flores.ec"]}
+RawContent        : HTTP/1.1 200 OK
+                    Content-Length: 110
+                    Content-Type: application/json
+                    
+                    {"id":1,"nombre":"Rosa Roja","categoria":"Flores","precioUsd":2.50,"correosNotificacion":["ventas@flores.ec"]}
+Forms             : {}
+Headers           : {[Content-Length, 110], [Content-Type, application/json]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 110
+
+
+
+PS D:\Descarga\agrosmart\agrosmart> curl.exe -i http://localhost:8177/api/productos/9999
+HTTP/1.1 404 Not Found
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 34
+
+Producto con ID 9999 no encontrado
+PS D:\Descarga\agrosmart\agrosmart> curl.exe "http://localhost:8177/api/agrosmart/publicidad?producto=Flores%20Naturales%20de%20Calidad&audiencia=Mercado%20Interno%20y%20Exportadores"
+"Descubre la belleza de nuestras Flores Naturales, calidad excepcional para el mercado local e internacional."
+PS D:\Descarga\agrosmart\agrosmart>
 ```
 
 **6.2** ¿Cómo lograste que el id inexistente responda **404** y no 500?
 
->
+>Lo logré creando una excepción personalizada y usando la anotación de Spring para definir mi código de respuesta. Definí la clase ProductoNoEncontradoException que hereda de RuntimeException, y le agregué @ResponseStatus(HttpStatus.NOT_FOUND), esto le indica a Spring que siempre que se lance esta excepción, devuelva automáticamente el código 404 y no un error interno del servidor (500).
+En el servicio, al buscar por ID, agrego una validación, es decir, si el repositorio no encuentra el producto, lanzo explícitamente esa excepción en lugar de dejar que retorne null o se produzca un fallo no controlado.
+Al ser una excepción de ejecución, Spring la detecta automáticamente sin necesidad de capturas manuales en el controlador, evitando que se propague como un error 500 genérico.
 
 **6.3** ¿Qué pasaría si tu controlador devolviera `List<Producto>` en lugar de
 `Flux<Producto>`? ¿Seguiría compilando? ¿Seguiría siendo no bloqueante?
 
->
+>SÍ, el código no tendría errores de sintaxis y Maven lo compilaría sin problemas.
+>¿Seguiría siendo no bloqueante?
+NO, dejaría de ser reactivo y pasaría a ser bloqueante, Flux<Producto> es un tipo reactivo de Spring WebFlux, es decir, emite los datos uno a uno a medida que se obtienen, sin bloquear el hilo de ejecución mientras espera a la base de datos o a procesos externos.
+List<Producto> obliga a esperar a que todos los registros se hayan cargado completamente en memoria antes de devolver la respuesta, durante ese tiempo el hilo queda bloqueado y no puede atender otras solicitudes, perdiendo toda la ventaja del modelo reactivo de WebFlux.
+Además, al usar tipos bloqueantes en la aplicación configurada como WebFlux, se rompe el flujo asincrónico y se pierde el rendimiento para muchas solicitudes simultáneas.
 
 ---
 
