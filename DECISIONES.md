@@ -21,6 +21,9 @@
 - **Cédula:**  1728620277
 - **NN (dos últimos dígitos):** 77
 - **Categoría asignada (según el último dígito):** Flores
+LINK DE VIDEO
+
+https://drive.google.com/file/d/1vcZ_qmqayfqKlVddXpManK_SSYH1L3YV/view?usp=sharing
 
 ---
 
